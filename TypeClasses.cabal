@@ -1,4 +1,4 @@
-name:                TypeClasse
+name:                TypeClasses
 version:             0.1.0.0
 -- synopsis:
 -- description:
@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Thomas Mahler
 maintainer:          thma@apache.org
 copyright:           2017 Thomas Mahler
-category:            Web
+category:            OOP
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10

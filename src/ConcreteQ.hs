@@ -19,8 +19,8 @@ instance Stack StackImpl where
 stack :: StackImpl Int
 stack = push 3 $ push 2 $ push 1 $ StackImpl []
 
---data Q e = Q (StackImpl e) (StackImpl e) deriving (Show)
-data Stack s =>  Q s =  Q s s deriving (Show)
+data Q e = Q (StackImpl e) (StackImpl e) deriving (Show)
+--data Stack s =>  Q s =  Q s s deriving (Show)
 
 instance Queue Q where
     --enq :: e -> Q e -> Q e
