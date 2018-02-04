@@ -1,8 +1,6 @@
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE GADTs #-}
 module ConcreteQ where
-import Stack 
+import           Stack
 
 newtype StackImpl e = StackImpl [e] deriving (Show)
 
@@ -12,25 +10,37 @@ instance Stack StackImpl where
     pop (StackImpl [])     = (Nothing, empty)
     pop (StackImpl (x:xs)) = (Just x, StackImpl xs)
     top (StackImpl [])     = Nothing
-    top (StackImpl (x:xs)) = Just x 
+    top (StackImpl (x:xs)) = Just x
     push x (StackImpl s)   = StackImpl (x:s)
     reverse (StackImpl s)  = StackImpl (Prelude.reverse s)
 
 stack :: StackImpl Int
 stack = push 3 $ push 2 $ push 1 $ StackImpl []
 
-data Q e = Q (StackImpl e) (StackImpl e) deriving (Show)
---data Stack s =>  Q s =  Q s s deriving (Show)
+-- GADTs are required to allow the following definition of a Stack based Queue
+data StackBasedQueue e where
+    ConsSQ :: (Stack s) => s e -> s e -> StackBasedQueue e
 
-instance Queue Q where
+
+instance Queue StackBasedQueue where
     --enq :: e -> Q e -> Q e
-    enq x (Q sIn sOut) = Q (push x sIn) sOut
+    enq x (ConsSQ sIn sOut) = ConsSQ (push x sIn) sOut
 
     --deq :: Q e -> (Maybe e, Q e)
-    deq q@(Q sIn sOut)
+    deq q@(ConsSQ sIn sOut)
         | isEmpty sOut && isEmpty sIn = (Nothing, q)
-        | isEmpty sOut = deq (Q empty (Stack.reverse sIn))
+        | isEmpty sOut = deq (ConsSQ empty (Stack.reverse sIn))
         | otherwise    = let (popped, stackOut) = pop sOut
-                        in (popped, Q sIn stackOut)
+                         in  (popped, ConsSQ sIn stackOut)
 
-q = Q stack (StackImpl [])                     
+q = ConsSQ stack (StackImpl [])
+
+newtype ListBasedQueue e = ConsLQ [e] deriving (Show)
+
+instance Queue ListBasedQueue where
+    enq x (ConsLQ l) = ConsLQ (x:l)
+
+    deq q@(ConsLQ []) = (Nothing, q)
+    deq q@(ConsLQ l) = let popped = last l
+                           rest   = Prelude.reverse $ tail $ Prelude.reverse l
+                       in (Just popped, ConsLQ rest)
