@@ -41,6 +41,4 @@ instance Queue ListBasedQueue where
     enq x (ConsLQ l) = ConsLQ (x:l)
 
     deq q@(ConsLQ []) = (Nothing, q)
-    deq q@(ConsLQ l) = let popped = last l
-                           rest   = Prelude.reverse $ tail $ Prelude.reverse l
-                       in (Just popped, ConsLQ rest)
+    deq q@(ConsLQ l)  = (Just $ last l, ConsLQ $ init l)
